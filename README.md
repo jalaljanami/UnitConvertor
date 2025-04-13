@@ -3,7 +3,7 @@
 A clean, lightweight iOS app for converting between units — including length, weight, volume, and temperature. Built with **SwiftUI**, the app uses **MVVM architecture** and follows best practices for modular, testable, and extendable code.
 
 
-![Demo Preview](https://github.com/jalaljanami/UnitConvertor/blob/main/Area02.mp4)
+![Demo Preview](https://github.com/jalaljanami/UnitConvertor/blob/main/unitconvertor.mp4)
 ---
 
 ## ✨ Features
