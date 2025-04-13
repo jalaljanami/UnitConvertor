@@ -17,8 +17,9 @@ struct ContentView: View {
     
     @State private var originValue: Double? = nil
     
-    private var destinationValue: Double {
-        convert()
+    var destinationValue: Double? {
+        guard let originValue = originValue else { return nil }
+        return UnitConverter.convert(from: originUnit, to: destinationUnit, value: originValue)
     }
     
     var body: some View {
@@ -78,7 +79,7 @@ struct ContentView: View {
             }
             
             Section {
-                Text(String(format: "%.2f", destinationValue))
+                Text(String(format: "%.2f", destinationValue ?? 0.0))
                     .font(.title)
                     .bold()
                     .multilineTextAlignment(.center)
@@ -93,48 +94,7 @@ struct ContentView: View {
         destinationUnit = Unit.first ?? "Meter"
         print(selectedUnits)
     }
-    
-    func convert() -> Double {
-        
-        let value = (originValue ?? 0.0)
-        let from = originUnit
-        let to = destinationUnit
-        
-        switch (from, to) {
-        case (Length.meter.rawValue, Length.foot.rawValue): return (originValue ?? 0.0) * 3.281 //Multiply
-        case (Length.meter.rawValue, Length.inch.rawValue): return value * 39.370 //Multiply
-        case (Length.foot.rawValue, Length.meter.rawValue): return value * 0.304 //Multiply
-        case (Length.foot.rawValue, Length.inch.rawValue): return value * 12 //Multiply
-        case (Length.inch.rawValue, Length.foot.rawValue): return value * 0.083 //Multiply
-        case (Length.inch.rawValue, Length.meter.rawValue): return value * 0.025 //Multiply
-            
-        case (Weight.kilogram.rawValue, Weight.pound.rawValue): return value * 2.205 //Multiply
-        case (Weight.kilogram.rawValue, Weight.ounce.rawValue): return value * 35.274 //Multiply
-        case (Weight.pound.rawValue, Weight.kilogram.rawValue): return value * 0.453 //Multiply
-        case (Weight.pound.rawValue, Weight.ounce.rawValue): return value * 16 //Multiply
-        case (Weight.ounce.rawValue, Weight.kilogram.rawValue): return value * 0.028 //Multiply
-        case (Weight.ounce.rawValue, Weight.pound.rawValue): return value * 0.062 //Multiply
-            
-        case (Volume.liter.rawValue, Volume.gallon.rawValue): return value * 0.264 //Multiply
-        case (Volume.liter.rawValue, Volume.cubicFoot.rawValue): return value * 0.035 //Multiply
-        case (Volume.gallon.rawValue, Volume.liter.rawValue): return value * 3.785 //Multiply
-        case (Volume.gallon.rawValue, Volume.cubicFoot.rawValue): return value * 0.133 //Multiply
-        case (Volume.cubicFoot.rawValue, Volume.liter.rawValue): return value * 28.316 //Multiply
-        case (Volume.cubicFoot.rawValue, Volume.gallon.rawValue): return value * 7.480 //Multiply
-            
-        case (Temperature.celsius.rawValue, Temperature.fahrenheit.rawValue): return ((value * 9 / 5) + 32)
-        case (Temperature.celsius.rawValue, Temperature.kelvin.rawValue): return (value + 273.15)
-        case (Temperature.fahrenheit.rawValue, Temperature.celsius.rawValue): return ((value - 32) * 5 / 9)
-        case (Temperature.fahrenheit.rawValue, Temperature.kelvin.rawValue): return ((((value - 32) * 5 / 9)) + 273.15)
-        case (Temperature.kelvin.rawValue, Temperature.celsius.rawValue): return (value - 273.15)
-        case (Temperature.kelvin.rawValue, Temperature.fahrenheit.rawValue): return (((value - 273.15) * 9 / 5) + 32)
-            
-        case (_, _):
-            return value * 1.0
-        }
-    }
 }
-
 
 #Preview {
     ContentView()
@@ -180,5 +140,41 @@ extension ContentView {
         case celsius = "Celsius"
         case fahrenheit = "Fahrenheit"
         case kelvin = "Kelvin"
+    }
+}
+
+struct UnitConverter {
+    static func convert(from: String, to: String, value: Double) -> Double {
+        switch (from, to) {
+        case ("Meter", "Foot"): return value * 3.281
+        case ("Meter", "Inch"): return value * 39.370
+        case ("Foot", "Meter"): return value * 0.304
+        case ("Foot", "Inch"): return value * 12
+        case ("Inch", "Foot"): return value * 0.083
+        case ("Inch", "Meter"): return value * 0.025
+
+        case ("Kilogram", "Pound"): return value * 2.205
+        case ("Kilogram", "Ounce"): return value * 35.274
+        case ("Pound", "Kilogram"): return value * 0.453
+        case ("Pound", "Ounce"): return value * 16
+        case ("Ounce", "Kilogram"): return value * 0.028
+        case ("Ounce", "Pound"): return value * 0.062
+
+        case ("Liter", "Gallon"): return value * 0.264
+        case ("Liter", "Cubic Foot"): return value * 0.035
+        case ("Gallon", "Liter"): return value * 3.785
+        case ("Gallon", "Cubic Foot"): return value * 0.133
+        case ("Cubic Foot", "Liter"): return value * 28.316
+        case ("Cubic Foot", "Gallon"): return value * 7.480
+
+        case ("Celsius", "Fahrenheit"): return (value * 9 / 5) + 32
+        case ("Celsius", "Kelvin"): return value + 273.15
+        case ("Fahrenheit", "Celsius"): return (value - 32) * 5 / 9
+        case ("Fahrenheit", "Kelvin"): return ((value - 32) * 5 / 9) + 273.15
+        case ("Kelvin", "Celsius"): return value - 273.15
+        case ("Kelvin", "Fahrenheit"): return ((value - 273.15) * 9 / 5) + 32
+
+        default: return value
+        }
     }
 }
